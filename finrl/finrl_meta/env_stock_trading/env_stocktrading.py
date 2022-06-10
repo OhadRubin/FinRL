@@ -70,6 +70,7 @@ class StockTradingEnv(gym.Env):
         self.iteration = iteration
         # initalize state
         self.state = self._initiate_state()
+        self.num_of_distinct_stocks = len(self.df.tic.unique())
 
         # initialize reward
         self.reward = 0
@@ -309,9 +310,9 @@ class StockTradingEnv(gym.Env):
             self.day += 1
             self.data = self.df.loc[self.day, :]
             if self.turbulence_threshold is not None:
-                if len(self.df.tic.unique()) == 1:
+                if self.num_of_distinct_stocks == 1:
                     self.turbulence = self.data[self.risk_indicator_col]
-                elif len(self.df.tic.unique()) > 1:
+                elif self.num_of_distinct_stocks > 1:
                     self.turbulence = self.data[self.risk_indicator_col].values[0]
             self.state = self._update_state()
 
@@ -364,7 +365,7 @@ class StockTradingEnv(gym.Env):
     def _initiate_state(self):
         if self.initial:
             # For Initial State
-            if len(self.df.tic.unique()) > 1:
+            if self.num_of_distinct_stocks > 1:
                 # for multiple stock
                 state = (
                     [self.initial_amount]
@@ -388,7 +389,7 @@ class StockTradingEnv(gym.Env):
                 )
         else:
             # Using Previous State
-            if len(self.df.tic.unique()) > 1:
+            if self.num_of_distinct_stocks > 1:
                 # for multiple stock
                 state = (
                     [self.previous_state[0]]
@@ -417,7 +418,7 @@ class StockTradingEnv(gym.Env):
         return state
 
     def _update_state(self):
-        if len(self.df.tic.unique()) > 1:
+        if self.num_of_distinct_stocks > 1:
             # for multiple stock
             state = (
                 [self.state[0]]
@@ -444,7 +445,7 @@ class StockTradingEnv(gym.Env):
         return state
 
     def _get_date(self):
-        if len(self.df.tic.unique()) > 1:
+        if self.num_of_distinct_stocks > 1:
             date = self.data.date.unique()[0]
         else:
             date = self.data.date
@@ -452,7 +453,7 @@ class StockTradingEnv(gym.Env):
 
     # add save_state_memory to preserve state in the trading process 
     def save_state_memory(self):
-        if len(self.df.tic.unique()) > 1:
+        if self.num_of_distinct_stocks > 1:
             # date and close price length must match actions length
             date_list = self.date_memory[:-1]
             df_date = pd.DataFrame(date_list)
@@ -480,7 +481,7 @@ class StockTradingEnv(gym.Env):
         return df_account_value
 
     def save_action_memory(self):
-        if len(self.df.tic.unique()) > 1:
+        if self.num_of_distinct_stocks > 1:
             # date and close price length must match actions length
             date_list = self.date_memory[:-1]
             df_date = pd.DataFrame(date_list)

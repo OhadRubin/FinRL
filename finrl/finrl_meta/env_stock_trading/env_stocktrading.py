@@ -69,6 +69,9 @@ class StockTradingEnv(gym.Env):
         self.mode = mode
         self.iteration = iteration
         # initalize state
+        self.unique_dates = self.data.date.unique()
+        self.total_dates = len(self.df.index.unique())
+        self.num_of_distinct_stocks = len(self.df.tic.unique()) 
         self.state = self._initiate_state()
         
 
@@ -193,7 +196,8 @@ class StockTradingEnv(gym.Env):
         plt.close()
 
     def step(self, actions):
-        self.terminal = self.day >= len(self.df.index.unique()) - 1
+        
+        self.terminal = self.day >= self.total_dates  - 1
         if self.terminal:
             # print(f"Episode: {self.episode}")
             if self.make_plots:
@@ -365,7 +369,7 @@ class StockTradingEnv(gym.Env):
     def _initiate_state(self):
         if self.initial:
             # For Initial State
-            self.num_of_distinct_stocks = len(self.df.tic.unique()) 
+            
             if self.num_of_distinct_stocks > 1:
                 # for multiple stock
                 state = (
@@ -446,8 +450,9 @@ class StockTradingEnv(gym.Env):
         return state
 
     def _get_date(self):
+        
         if self.num_of_distinct_stocks > 1:
-            date = self.data.date.unique()[0]
+            date = self.unique_dates[0]
         else:
             date = self.data.date
         return date

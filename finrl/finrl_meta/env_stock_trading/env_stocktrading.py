@@ -70,7 +70,7 @@ class StockTradingEnv(gym.Env):
         self.iteration = iteration
         # initalize state
         self.state = self._initiate_state()
-        self.num_of_distinct_stocks = len(self.df.tic.unique())
+        
 
         # initialize reward
         self.reward = 0
@@ -365,6 +365,7 @@ class StockTradingEnv(gym.Env):
     def _initiate_state(self):
         if self.initial:
             # For Initial State
+            self.num_of_distinct_stocks = len(self.df.tic.unique()) 
             if self.num_of_distinct_stocks > 1:
                 # for multiple stock
                 state = (
